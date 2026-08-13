@@ -165,7 +165,6 @@
   // (低信頼度警告と違い、これは「太宰治判定器」というアプリの主題そのものへの
   // 演出なので、作家名をハードコードしてよい)
   function updateDazaiEffect(isDazai) {
-    els.resultHeadline.classList.remove("dazai-detected");
     els.resultArea.classList.remove("dazai-celebrate");
     els.dazaiBanner.classList.add("hidden");
     els.dazaiBanner.innerHTML = "";
@@ -173,10 +172,6 @@
 
     if (!isDazai) return;
 
-    // アニメーションを毎回頭から再生させるため、一度クラスを外してから
-    // 強制リフロー(offsetWidth参照)を挟んで付け直す。
-    void els.resultHeadline.offsetWidth;
-    els.resultHeadline.classList.add("dazai-detected");
     els.resultArea.classList.add("dazai-celebrate");
 
     els.dazaiBanner.innerHTML =
