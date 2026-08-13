@@ -3,11 +3,12 @@ artifacts/author_classifier.pt (本番用チェックポイント) を組み立�
 
 前提:
   - PTH_PATH: state_dict/labels/input_dim/hidden_dim を含む辞書として
-    torch.save されたファイル(Dropoutなしのアーキテクチャで学習済み)
+    torch.save されたファイル(Dropout(0.3)込みのアーキテクチャで学習済み)
   - LABELS_JSON_PATH: 出力インデックス順の作家名リスト(PTH内のlabelsと一致するはずだが、
     念のため突き合わせて検証する)
   - METRICS: balanced_accuracy_mean/std は5回実験(different splits)の平均・標準偏差、
     macro_f1/per_class_f1 は実際にデプロイする最終モデル1回分の classification report から。
+    (この重みを学習した回とは別の回の評価結果を流用している。ユーザー了承済み)
 
 使い方 (太宰治判定器_webApp ディレクトリから):
     python build_checkpoint.py
@@ -19,7 +20,7 @@ import torch
 
 from app.model import AuthorClassifier
 
-PTH_PATH = Path("/Users/fukudataketo/Downloads/author_classifier_9authors.pth")
+PTH_PATH = Path(__file__).resolve().parent / "author_classifier_9authors (2).pth"
 LABELS_JSON_PATH = Path("/Users/fukudataketo/Downloads/author_classifier_9authors_labels.json")
 OUT_PATH = Path(__file__).resolve().parent / "artifacts" / "author_classifier.pt"
 

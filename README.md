@@ -92,8 +92,8 @@ checkpoint = {
 torch.save(checkpoint, "artifacts/author_classifier.pt")
 ```
 
-`AuthorClassifier` は `app/model.py` のものと同一構造(768→128→128→9、各隠れ層の後にReLU、
-Dropoutなし)で学習してください。構造が一致しないと `load_state_dict` が失敗します。
+`AuthorClassifier` は `app/model.py` のものと同一構造(768→128→128→9、各隠れ層の後に
+ReLU + Dropout(0.3))で学習してください。構造が一致しないと `load_state_dict` が失敗します。
 
 ## 起動
 
