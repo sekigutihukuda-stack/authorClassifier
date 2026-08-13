@@ -45,8 +45,7 @@ OUT_PATH = Path(__file__).resolve().parent / "artifacts" / "author_classifier.pt
 # ============================================================
 
 def main():
-    # app/model.py の AuthorClassifier とコンストラクタ引数の順序・
-    # デフォルト値(dropout=0.3)を完全に一致させること。
+    # app/model.py の AuthorClassifier とコンストラクタ引数を完全に一致させること。
     model = AuthorClassifier(
         input_dim=INPUT_DIM,
         hidden_dim=HIDDEN_DIM,
