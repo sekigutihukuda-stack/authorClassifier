@@ -48,6 +48,7 @@
     resultArea: document.getElementById("result-area"),
     resultHeadline: document.getElementById("result-headline"),
     dazaiBanner: document.getElementById("dazai-banner"),
+    dazaiConfetti: document.getElementById("dazai-confetti"),
     lowConfidenceWarning: document.getElementById("low-confidence-warning"),
     bars: document.getElementById("bars"),
     resultMeta: document.getElementById("result-meta"),
@@ -128,13 +129,47 @@
     els.errorBox.classList.add("hidden");
   }
 
+  // confetti片が古い再生タイマーで新しい演出を消してしまわないようにする世代カウンタ
+  let dazaiConfettiGeneration = 0;
+  const DAZAI_CONFETTI_EMOJI = ["🖋️", "✒️", "📖", "🌸", "✨"];
+
+  function spawnDazaiConfetti() {
+    const generation = ++dazaiConfettiGeneration;
+    els.dazaiConfetti.innerHTML = "";
+
+    for (let i = 0; i < 26; i++) {
+      const piece = document.createElement("span");
+      piece.className = "confetti-piece";
+      piece.textContent =
+        DAZAI_CONFETTI_EMOJI[Math.floor(Math.random() * DAZAI_CONFETTI_EMOJI.length)];
+      piece.style.setProperty("--x", `${Math.random() * 100}%`);
+      piece.style.setProperty("--size", `${0.9 + Math.random() * 0.9}rem`);
+      piece.style.setProperty("--duration", `${1.4 + Math.random() * 1.0}s`);
+      piece.style.setProperty("--delay", `${Math.random() * 0.5}s`);
+      piece.style.setProperty("--drift", `${(Math.random() - 0.5) * 140}px`);
+      piece.style.setProperty(
+        "--spin",
+        `${(Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 360)}deg`
+      );
+      els.dazaiConfetti.appendChild(piece);
+    }
+
+    setTimeout(() => {
+      if (dazaiConfettiGeneration === generation) {
+        els.dazaiConfetti.innerHTML = "";
+      }
+    }, 2600);
+  }
+
   // 最上位が太宰治だった場合だけの特別演出。
   // (低信頼度警告と違い、これは「太宰治判定器」というアプリの主題そのものへの
   // 演出なので、作家名をハードコードしてよい)
   function updateDazaiEffect(isDazai) {
     els.resultHeadline.classList.remove("dazai-detected");
+    els.resultArea.classList.remove("dazai-celebrate");
     els.dazaiBanner.classList.add("hidden");
     els.dazaiBanner.innerHTML = "";
+    els.dazaiConfetti.innerHTML = "";
 
     if (!isDazai) return;
 
@@ -142,12 +177,15 @@
     // 強制リフロー(offsetWidth参照)を挟んで付け直す。
     void els.resultHeadline.offsetWidth;
     els.resultHeadline.classList.add("dazai-detected");
+    els.resultArea.classList.add("dazai-celebrate");
 
     els.dazaiBanner.innerHTML =
       '<span class="dazai-sparkle">🖋️</span>' +
-      "太宰治の文体との一致度が際立って高い、特別な結果です" +
+      "太宰治の文体との一致度が際立って高いです!" +
       '<span class="dazai-sparkle">🖋️</span>';
     els.dazaiBanner.classList.remove("hidden");
+
+    spawnDazaiConfetti();
   }
 
   function renderResult(data) {
