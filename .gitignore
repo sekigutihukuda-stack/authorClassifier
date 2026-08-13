@@ -1,0 +1,19 @@
+# 学習済みモデル(artifacts/author_classifier.pt)は、Hugging Face Spaces への
+# デプロイ方針(パターンa: Spaceリポジトリに直接git-lfsでコミット)に基づき、
+# あえて除外しない。差し替えは git commit & push で行う。
+
+# 青空文庫のテキストや生成したCSV(再配布しない)
+*.csv
+authors_cleaned/
+authors_cleaned_9/
+embedding_cache/
+*.txt.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store

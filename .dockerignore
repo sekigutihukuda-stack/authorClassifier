@@ -1,0 +1,24 @@
+# ローカル仮想環境(巨大なのでビルドコンテキストに含めない)
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# 開発用ユーティリティ(実行時には不要)
+dummy.py
+
+# 青空文庫のテキストや生成したCSV(再配布しないため)
+*.csv
+authors_cleaned/
+authors_cleaned_9/
+embedding_cache/
+
+# VCS・OS
+.git/
+.gitignore
+.DS_Store
+
+# ドキュメント(イメージに含める必要はない)
+README.md

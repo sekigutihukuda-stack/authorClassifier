@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>太宰治判定器</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>太宰治判定器</h1>
+    <p class="subtitle">文章を9人の近代日本文学作家の文体と比較します</p>
+  </header>
+
+  <main>
+    <section class="notice" id="notice">
+      <h2>この判定器について</h2>
+      <p>
+        このモデルは、下記の <strong>9名の作家</strong> の中から文体が最も近い人物を選ぶ分類器です。
+        9名以外の作者(現代の文章や他の作家の文章)を入力しても、必ずこの9名の誰かが選ばれます。
+        「その作家である確率」ではなく、<strong>「9名の中での相対的な近さ」</strong>として結果をご覧ください。
+      </p>
+      <ul class="author-list" id="author-list">
+        <li class="skeleton">読み込み中...</li>
+      </ul>
+      <p class="overall-metric" id="overall-metric"></p>
+    </section>
+
+    <section class="input-area">
+      <h2>テキストを入力</h2>
+
+      <div class="presets" id="presets">
+        <span class="presets-label">サンプル:</span>
+      </div>
+
+      <textarea
+        id="text-input"
+        placeholder="判定したい文章を入力してください(10〜5000文字)"
+        maxlength="5000"
+      ></textarea>
+
+      <div class="input-footer">
+        <span id="char-counter">0 / 5000文字</span>
+        <span id="char-warning" class="warning"></span>
+      </div>
+
+      <button id="predict-btn" type="button">判定する</button>
+      <div id="loading" class="loading hidden">
+        <span class="spinner"></span>
+        初回はモデルの読み込みに時間がかかる場合があります…
+      </div>
+      <div id="error" class="error hidden"></div>
+    </section>
+
+    <section class="result-area hidden" id="result-area">
+      <h2>判定結果</h2>
+      <p class="result-headline" id="result-headline"></p>
+      <p class="low-confidence-warning hidden" id="low-confidence-warning"></p>
+
+      <div class="bars" id="bars"></div>
+
+      <p class="result-meta" id="result-meta"></p>
+    </section>
+  </main>
+  
+  <script src="app.js"></script>
+</body>
+</html>
