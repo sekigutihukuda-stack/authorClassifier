@@ -1,13 +1,3 @@
----
-title: 太宰治判定機
-emoji: 🖋️
-colorFrom: gray
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # 太宰治判定機
 
 Sentence-BERT (`intfloat/multilingual-e5-base`) + MLP による、近代日本文学9作家の文体分類 Web アプリ。
@@ -114,6 +104,49 @@ uvicorn app.main:app --reload
 `http://127.0.0.1:8000/` にアクセスすると UI が表示されます。
 初回起動時は SBERT モデル(約1.1GB)のダウンロード・ロードが走るため、起動と最初の判定に
 時間がかかります。
+
+## Google Cloud Run へのデプロイ
+
+`Dockerfile` はそのまま Cloud Run で使える(コード変更不要)。ローカルで `docker build` して
+動作確認したイメージと同じものが、Cloud Build 経由でビルドされてデプロイされる。
+
+### 初回のみのセットアップ
+
+1. [Google Cloud Console](https://console.cloud.google.com/) でプロジェクトを作成し、
+   課金を有効化する(支払い方法の登録は本人確認目的。無料枠(月間リクエスト数・
+   コンピュート時間など)の範囲内であれば実際の課金は発生しない。誤って有料の
+   ハードウェア/リージョン設定をしないよう、後述の `--memory`・`--cpu` の値を守ること)
+2. ログインとプロジェクト設定:
+   ```bash
+   gcloud auth login
+   gcloud config set project <あなたのプロジェクトID>
+   ```
+3. 必要な API を有効化:
+   ```bash
+   gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+   ```
+
+### デプロイ
+
+```bash
+GCP_PROJECT_ID=<あなたのプロジェクトID> ./deploy.sh
+```
+
+`deploy.sh` は `gcloud run deploy --source .` を実行する。Cloud Build が `Dockerfile` を
+ビルドし、Artifact Registry に push した上で Cloud Run サービスとして起動する。
+`--memory 2Gi --cpu 2` を指定しているのは、SBERT + MLP の推論に Cloud Run のデフォルト
+(512MiB)では不足するため。リクエストが無い間はゼロスケールし、課金されない。
+
+`author_classifier.pt` を差し替えた後の再デプロイも、同じコマンドを再実行するだけでよい。
+
+### リージョン・サービス名の変更
+
+デフォルトはリージョン `asia-northeast1`(東京)、サービス名 `dazai-classifier`。
+変更する場合は環境変数で上書きできる:
+
+```bash
+GCP_PROJECT_ID=<プロジェクトID> GCP_REGION=us-central1 GCP_SERVICE_NAME=my-service ./deploy.sh
+```
 
 ## API
 

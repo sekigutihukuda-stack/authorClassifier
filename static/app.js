@@ -49,6 +49,7 @@
     errorBox: document.getElementById("error"),
     resultArea: document.getElementById("result-area"),
     resultHeadline: document.getElementById("result-headline"),
+    dazaiBanner: document.getElementById("dazai-banner"),
     lowConfidenceWarning: document.getElementById("low-confidence-warning"),
     bars: document.getElementById("bars"),
     resultMeta: document.getElementById("result-meta"),
@@ -58,6 +59,12 @@
   const MAX_LEN = 5000;
 
   let meta = null;
+
+  // 初回訪問時、モデルのロードが完了するまでタブのタイトルで
+  // 「読み込み中で止まっているわけではない」ことを伝える。
+  // (Cloud Runのコールドスタート時は特に顕著に遅くなるため)
+  const DEFAULT_TITLE = document.title;
+  document.title = `少々お待ちください… | ${DEFAULT_TITLE}`;
 
   function renderPresets() {
     for (const preset of PRESETS) {
@@ -108,6 +115,8 @@
         `全体性能(5分割平均): Balanced Accuracy ${mean}% ± ${std}% / Macro F1 ${(meta.macro_f1 * 100).toFixed(1)}%`;
     } catch (err) {
       els.authorList.innerHTML = "<li>作家一覧の取得に失敗しました</li>";
+    } finally {
+      document.title = DEFAULT_TITLE;
     }
   }
 
@@ -121,13 +130,38 @@
     els.errorBox.classList.add("hidden");
   }
 
+  // 最上位が太宰治だった場合だけの特別演出。
+  // (低信頼度警告と違い、これは「太宰治判定器」というアプリの主題そのものへの
+  // 演出なので、作家名をハードコードしてよい)
+  function updateDazaiEffect(isDazai) {
+    els.resultHeadline.classList.remove("dazai-detected");
+    els.dazaiBanner.classList.add("hidden");
+    els.dazaiBanner.innerHTML = "";
+
+    if (!isDazai) return;
+
+    // アニメーションを毎回頭から再生させるため、一度クラスを外してから
+    // 強制リフロー(offsetWidth参照)を挟んで付け直す。
+    void els.resultHeadline.offsetWidth;
+    els.resultHeadline.classList.add("dazai-detected");
+
+    els.dazaiBanner.innerHTML =
+      '<span class="dazai-sparkle">🖋️</span>' +
+      "太宰治の文体との一致度が際立って高い、特別な結果です" +
+      '<span class="dazai-sparkle">🖋️</span>';
+    els.dazaiBanner.classList.remove("hidden");
+  }
+
   function renderResult(data) {
     els.resultArea.classList.remove("hidden");
 
     const top = data.results[0];
+    const isDazai = top.author === "太宰治";
     const pct = (top.probability * 100).toFixed(1);
     els.resultHeadline.textContent =
       `9名の作家の中では「${top.author}」に最も近い判定結果です(${pct}%)`;
+
+    updateDazaiEffect(isDazai);
 
     const topF1 = meta ? meta.per_class_f1[top.author] : undefined;
     if (typeof topF1 === "number" && topF1 < LOW_F1_THRESHOLD) {
@@ -149,10 +183,12 @@
       const pctStr = (item.probability * 100).toFixed(1);
       label.innerHTML = `<span>${item.author}</span><span>${pctStr}%</span>`;
 
+      const isTop = item === data.results[0];
       const track = document.createElement("div");
       track.className = "bar-track";
       const fill = document.createElement("div");
-      fill.className = "bar-fill" + (item === data.results[0] ? " top" : "");
+      fill.className =
+        "bar-fill" + (isTop ? " top" : "") + (isTop && isDazai ? " dazai" : "");
       fill.style.width = `${item.probability * 100}%`;
       track.appendChild(fill);
 
